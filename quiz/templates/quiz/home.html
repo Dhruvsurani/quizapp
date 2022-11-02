@@ -1,0 +1,45 @@
+{% extends 'quiz/base.html' %}
+
+{% block content %}
+    <div  class="row mx-auto m-5  justify-content-center align-items-center">
+        <button  id="startquiz" type="button" class="btn btn-primary">Start Quiz</button>
+
+    </div>
+<div  class="row mx-auto m-5   justify-content-center align-items-center">
+
+        <ul id="cat1">
+
+        </ul>
+    </div>
+
+
+{% endblock %}
+
+{% block script %}
+    <script>
+        $('button').click(function(){
+        $('#startquiz').prop('disabled', true);
+        console.log('in')
+            $.ajax({
+              type: 'GET',
+              contentType: 'application/json',
+              dataType:'json',
+
+              url: 'http://127.0.0.1:8000/list_category',
+
+              success: function (data) {
+                  var list1 = document.getElementById('cat1');
+                  var output = '';
+
+                console.log('data: ', data[0].category_name);
+
+                for (var x=0; x < data.length; x++){
+                  console.log(data[x].category_name)
+                  $('#cat1').append('<button style="margin:10px;" type="button" class="btn btn-primary">' + data[x].category_name + '</button>');
+                }
+
+              }
+            });
+        });
+    </script>
+{% endblock %}
