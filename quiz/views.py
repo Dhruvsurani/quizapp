@@ -1,13 +1,13 @@
 from django.shortcuts import render
 from django.http import Http404
-from django.views.generic import TemplateView
+from django.views.generic import TemplateView, DetailView
 from rest_framework import generics, status, views
 from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from .models import Category, Quiz, Answer
-from .serializers import CategorySerializer, QuestionSerializer, ChoiceSerializer
+from .serializers import CategorySerializer, QuestionSerializer, ChoiceSerializer, QuizSerializer
 
 
 # Create your views here.
@@ -22,6 +22,21 @@ class ListCategories(generics.ListAPIView):
     queryset = Category.objects.all()
 
 
+class GetQuizes(generics.RetrieveAPIView):
+    permission_classes = (AllowAny, )
+    serializer_class = QuizSerializer
+    queryset = Quiz.objects.all()
+
+
+class ListQuizes(APIView):
+    authentication_classes = []  # disables authentication
+    permission_classes = []  # disables permission
+    def get(self, request):
+        quizes = Quiz.objects.all()
+        serializer = QuizSerializer(quizes, many=True)
+        return Response(serializer.data)
+
+
 class StartQuiz(APIView):
 
     def get(self, request, category_id=None):
@@ -31,7 +46,6 @@ class StartQuiz(APIView):
             raise Http404
         serializer = QuestionSerializer(quiz.question.all(), many=True)
         return Response(serializer.data)
-
 
 class AddCategories(generics.CreateAPIView):
     serializer_class = CategorySerializer
