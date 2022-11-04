@@ -1,40 +1,96 @@
 {% extends 'quiz/base.html' %}
 
 {% block content %}
-    <div  class="row mx-auto m-5  justify-content-center align-items-center">
+<div class="container" id="quizapp">
+    <div  class="row mx-auto m-5  justify-content-center align-items-center quiz">
         <button  id="startquiz" type="button" class="btn btn-primary">Start Quiz</button>
 
     </div>
-    <div  class="row mx-auto m-5   justify-content-center align-items-center">
+    <div  class="row mx-auto m-5   justify-content-center align-items-center quiz">
 
         <ul id="cat1">
 
         </ul>
+
     </div>
 
+</div>
+<div class="container">
+    <div class="card">
+        <div class="content h-100">
+        <div class="container mt-sm-5 my-1">
+            <div class="question ml-sm-5 pl-sm-5 pt-2" >
+                <ul id="questions">
+
+                </ul>
+            </div>
+        </div>
+    </div>
+    </div>
+</div>
 
 {% endblock %}
 
 {% block script %}
     <script>
         $('button').click(function(){
-        $('#startquiz').prop('disabled', true);
-        console.log('in')
+            $('#startquiz').prop('disabled', true);
+            console.log('in')
+
             $.ajax({
-              type: 'GET',
-              contentType: 'application/json',
-              dataType:'json',
+                type: 'GET',
+                contentType: 'application/json',
+                dataType:'json',
+                url: 'http://127.0.0.1:8000/list_category',
 
-              url: 'http://127.0.0.1:8000/list_category',
+                success: function (data) {
+                    console.log('data: ', data[0]);
+                    for (var x=0; x < data.length; x++){
+                        console.log(data[x].category_name)
+                        $('#cat1').append(`<a id="${data[x].id}" href="" style="margin:10px;" type="button" class="btn btn-primary">${data[x].category_name}</a>`);
+                    }
 
-              success: function (data) {
-                console.log('data: ', data[0].category_name);
-                for (var x=0; x < data.length; x++){
-                  console.log(data[x].category_name)
-                  $('#cat1').append(`<a href="http://127.0.0.1:8000/start/${data[x].id}" style="margin:10px;" type="button" class="btn btn-primary">${data[x].category_name}</a>`);
+                    $("a").click(function(e){
+                        e.preventDefault();
+                        $('#quizapp').remove()
+                        a = $(this).attr('id')
+
+                        $.ajax({
+                            type: 'GET',
+                            contentType: 'application/json',
+                            dataType:'json',
+                            url: 'http://127.0.0.1:8000/start/'+a,
+
+                            success: function(data){
+                                console.log('hey',data)
+                                for (var x=0; x<data.length;x++){
+                                    console.log('hey',data[x].question)
+<!--                                    $('#question_title').text(data[x].question_title)-->
+                                    $('#questions').html
+                                    (`<div class="py-2 h5"><srong id="question_title">${data[x].question_title}</srong></div>
+                                    <div class="ml-md-3 ml-sm-3 pl-md-5 pt-sm-0 pt-3" id="options">
+                                        <label class="options">Small Business Owner or Employee
+                                            <input type="radio" name="radio">
+                                            <span class="checkmark"></span>
+                                        </label>
+                                        <label class="options">Nonprofit Owner or Employee
+                                            <input type="radio" name="radio">
+                                            <span class="checkmark"></span>
+                                        </label>
+                                        <label class="options">Journalist or Activist
+                                            <input type="radio" name="radio">
+                                            <span class="checkmark"></span>
+                                        </label>
+                                        <label class="options">Other
+                                            <input type="radio" name="radio">
+                                            <span class="checkmark"></span>
+                                        </label>
+                                    </div>`)
+                                }
+                            }
+                        });
+                    });
                 }
-
-              }
             });
         });
     </script>
