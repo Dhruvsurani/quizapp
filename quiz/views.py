@@ -2,6 +2,7 @@ from django.shortcuts import render
 from django.http import Http404
 from django.views.generic import TemplateView, DetailView
 from rest_framework import generics, status, views
+from rest_framework.pagination import PageNumberPagination
 from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -37,30 +38,21 @@ class ListQuizes(APIView):
         except Quiz.DoesNotExist:
             raise Http404
         serializer = QuizSerializer(quizes, many=True)
-        # quizes = Quiz.objects.all()
-        # serializer = QuizSerializer(quizes, many=True)
+
         return Response(serializer.data)
 
+class LargeResultsSetPagination(PageNumberPagination):
+    page_size = 1
+    page_size_query_param = 'page_size'
 
 class StartQuiz(generics.ListAPIView):
     permission_classes = (AllowAny,)
     serializer_class = QuizSerializer
+    pagination_class = LargeResultsSetPagination
 
     def get_queryset(self):
         cat_id = self.kwargs['category_id']
         return Quiz.objects.filter(category_id=cat_id)
-    # q = Quiz.objects.all()
-    # queryset = q
-    # # breakpoint()
-    # print(queryset)
-    # def get(self, request, category_id=None):
-    #     try:
-    #         quiz = Quiz.objects.filter(category_id=category_id)
-    #         print(quiz)
-    #     except Quiz.DoesNotExist:
-    #         raise Http404
-    #     serializer = QuizSerializer(quiz, many=True)
-    #     return Response(serializer.data)
 
 
 class AddCategories(generics.CreateAPIView):

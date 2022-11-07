@@ -2,11 +2,11 @@
 
 {% block content %}
 <div class="container" id="quizapp">
-    <div  class="row mx-auto m-5  justify-content-center align-items-center quiz">
-        <button  id="startquiz" type="button" class="btn btn-primary">Start Quiz</button>
+    <div class="row mx-auto m-5  justify-content-center align-items-center quiz">
+        <button id="startquiz" type="button" class="btn btn-primary">Start Quiz</button>
 
     </div>
-    <div  class="row mx-auto m-5   justify-content-center align-items-center quiz">
+    <div class="row mx-auto m-5   justify-content-center align-items-center quiz">
 
         <ul id="cat1">
 
@@ -15,24 +15,25 @@
     </div>
 
 </div>
-<div class="container">
-    <div class="card">
-        <div class="content h-100">
-        <div class="container mt-sm-5 my-1">
-            <div class="question ml-sm-5 pl-sm-5 pt-2" >
-                <ul id="questions" class="list-group">
-
-                </ul>
-            </div>
+<div class="container" id="question_list">
+    <div class="container mt-sm-5 my-1">
+        <div class="question ml-sm-5 pl-sm-5 pt-2">
+            <ul id="questions" class="list-group">
+                <li class="list-group-item ">
+                    <div class="py-2 h5" id="main">
+                        <srong id="question_title"></srong>
+                    </div>
+                </li>
+            </ul>
         </div>
-    </div>
     </div>
 </div>
 
 {% endblock %}
 
 {% block script %}
-    <script>
+<script>
+
         $('button').click(function(){
             $('#startquiz').prop('disabled', true);
             console.log('in')
@@ -53,8 +54,26 @@
                     $("a").click(function(e){
                         e.preventDefault();
                         $('#quizapp').remove()
+
+
                         a = $(this).attr('id')
 
+
+                        function get_new(){
+                            var next = ''
+                            var pre = ''
+
+                            $.ajax({
+                                type: 'GET',
+                                contentType: 'application/json',
+                                dataType:'json',
+                                url: next,
+
+                                success: function(data){
+
+                                }
+                            });
+                        }
                         $.ajax({
                             type: 'GET',
                             contentType: 'application/json',
@@ -62,36 +81,76 @@
                             url: 'http://127.0.0.1:8000/start/'+a,
 
                             success: function(data){
-                                console.log('hey',data)
-                                for (var x=0; x<data.length;x++){
-                                    console.log('hey',data[x].question)
 
-                                    $('#questions').html
-                                    (`<li class="list-group-item"><div class="py-2 h5"><srong id="question_title">${data[x].question_title}</srong></div>
-                                    <div class="ml-md-3 ml-sm-3 pl-md-5 pt-sm-0 pt-3" id="options">
-                                        <label class="options">Small Business Owner or Employee
-                                            <input type="radio" name="radio">
-                                            <span class="checkmark"></span>
-                                        </label>
-                                        <label class="options">Nonprofit Owner or Employee
-                                            <input type="radio" name="radio">
-                                            <span class="checkmark"></span>
-                                        </label>
-                                        <label class="options">Journalist or Activist
-                                            <input type="radio" name="radio">
-                                            <span class="checkmark"></span>
-                                        </label>
-                                        <label class="options">Other
-                                            <input type="radio" name="radio">
-                                            <span class="checkmark"></span>
-                                        </label>
-                                    </div></li>`)
-                                }
+<!--                                console.log('hey',data)-->
+<!--                                var questions = "";-->
+<!--                                console.log(data.results[0].choice)-->
+
+                                $('#question_title').text(data.results[0].question_title)
+                                $.each( data.results[0].choice, function( key, value ) {
+                                           $('#main').append(`<br>
+                                                <input type="radio" name="v">
+                                                <span class="checkmark"></span>
+                                                <label class="options">${value}</label></br>
+                                            `)
+
+                                });
+                                next = data.next
+                                get_new();
+
+
+<!--                                data.forEach(item => {-->
+
+<!--                                    q = `-->
+
+<!--                                        $.each( item.choice, function( key, value ) {-->
+<!--                                            q+=`-->
+<!--                                                <input type="radio" name="${item.question_title}">-->
+<!--                                                <span class="checkmark"></span>-->
+<!--                                                <label class="options">${value}</label></br>-->
+<!--                                            `-->
+
+<!--                                        });-->
+<!--                                    questions += q-->
+
+
+<!--                                });-->
+<!--                                $('#questions').append(questions);-->
+
+
                             }
                         });
                     });
                 }
             });
         });
-    </script>
+
+        $(document).ready(function(){
+
+
+            $("#next").click(function(){
+                console.log('next')
+                if ($("#questions li:visible").next().length != 0)
+                    $("#questions li:visible").next().show().prev().hide();
+                else {
+                    $("#questions li:visible").hide();
+                    $("#questions li:first").show();
+                }
+                return false;
+            });
+
+            $("#prev").click(function(){
+                if ($("#questions li:visible").prev().length != 0)
+                    $("#questions li:visible").prev().show().next().hide();
+                else {
+                    $("#questions li:visible").hide();
+                    $("#questions li:last").show();
+                }
+                return false;
+            });
+        });
+
+
+
+</script>
 {% endblock %}
