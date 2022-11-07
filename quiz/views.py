@@ -45,6 +45,7 @@ class LargeResultsSetPagination(PageNumberPagination):
     page_size = 1
     page_size_query_param = 'page_size'
 
+
 class StartQuiz(generics.ListAPIView):
     permission_classes = (AllowAny,)
     serializer_class = QuizSerializer
