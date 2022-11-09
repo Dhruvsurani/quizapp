@@ -27,92 +27,152 @@
 
 {% block script %}
 <script>
-        function ajax_call(url){
-           
-            $.ajax({
-                type: 'GET',
-                contentType: 'application/json',
-                dataType:'json',
-                url: url,
+    resultsArray = [];
+    function setAnsValue(value, id) {
+        var idname = `q${id}`;
+        var check = false;
+        // $.map(resultsArray, function(elementOfArray, indexInArray) {
+        //     if (elementOfArray) {
+            
+        //     }
+        //     });
+        var obj = {};
+        obj[idname] = value
+        
+        resultsArray.push(obj);
+        
+            // if(resultsArray.length == 0){
+            //     obj[idname] = value
+            //             resultsArray.push(obj);
                 
-                success: function (data) {
-                    console.log('my que' ,data)
-                    $('#main').html('')
-                    $("#main").append('<b>Q.  </b><srong id="question_title"></srong><br>');
-                    $('#question_title').text(data.results[0].question);
-                        $.each( data.results[0].choice, function( key, value ) {
-                            $('#main').append(`<br>
-                                <input id=""  type="radio" name="">
+            // }else{
+            //     resultsArray.forEach(function(o) {
+            //     Object.keys(o).forEach(function(prop) {
+            //         if(prop != idname){
+            //             obj[idname] = value
+            //             resultsArray.push(obj);
+            //             check = true;
+            //         }
+            //     });
+            //     if(!check){
+            //         o[idname] = value;
+            //     }
+            // });
+            // }
+           
+        
+         
+    }
+    function checkanswer(resultsArray) {
+
+    }
+
+    function ajax_call(url) {
+
+        $.ajax({
+            type: 'GET',
+            contentType: 'application/json',
+            dataType: 'json',
+            url: url,
+
+            success: function (data) {
+                console.log('my que', data)
+                $('#main').html('')
+                $("#main").append('<b>Q.  </b><srong id="question_title"></srong><br>');
+                $('#question_title').text(data.results[0].question);
+                var count = 0;
+                $.each(data.results[0].choice, function (key, value) {
+                    count = count + 1;
+                    var vid = `q${count}`;
+
+                    $('#main').append(`<br>
+                                <input  onclick="setAnsValue(${value},${data.results[0].id})" type="radio" name="${data.results[0].question}">
                                 
                                 <label class="options">${value}</label></br>
                             `)
-                                              
-                        });
-                        
-                        
-                        
-                        if (data.next){
-                            $('#previous').hide();
-                            $('#next').attr('href', data.next)
-                        }
-                        if (data.previous){
-                            $('#previous').show();
-                            $('#previous').attr('href', data.previous)
-                        }
-                        if (variable != null){
-                            $('#next').hide();
-                        }
-                        
-     
+
+                });
+                
+
+
+
+
+                if (data.next) {
+                    $('#next').show();
+                    $('#previous').hide();
+                    $('#next').attr('href', data.next)
                 }
-            });
-           
-        }
-     
-        $('#questions').remove();
-        $('button').click(function(){
-            localStorage.clear();
-            $('#startquiz').prop('disabled', true);
-            console.log('in')
-
-            $.ajax({
-                type: 'GET',
-                contentType: 'application/json',
-                dataType:'json',
-                url: 'http://127.0.0.1:8000/questionschoices',
-
-                success: function (data) {
-                    console.log('data: ', data);
-            
-                        $('.question').append('<ul id="questions" class="list-group"><li class="list-group-item "><div class="py-2 h5" id="main"><b>Q  </b><srong id="question_title"></srong></div><a id="previous" class="btn btn-success m-3">previous</a><a id="next" href="" class="btn btn-success m-3">next</a><br></li></ul>');
-                        
-                        $('#quizapp').remove()
-                        
-                        a = $(this).attr('id')
-
-
-                        data = ajax_call('http://127.0.0.1:8000/questionschoices')
-                        
-                        $('#next').click(function(e){
-                            
-                            e.preventDefault();
-                            ajax_call($('#next').attr('href'))
-                            
-                           
-                        });
-                        $('#previous').click(function(e){
-                            e.preventDefault();
-                            ajax_call($('#previous').attr('href'))
-                            
-                        });
-             
-                        
-                        
-                        
-                    
+                else {
+                    $('#next').hide();
+                    $('#main').append('<a id="submit" class="btn btn-success m-3">submit</a>');
                 }
-            });
+                if (data.previous) {
+                    $('#previous').show();
+                    $('#previous').attr('href', data.previous)
+                }
+                else {
+                    $('#next').show();
+                }
+
+            }
         });
+
+    }
+
+    $('#questions').remove();
+    $('button').click(function () {
+        localStorage.clear();
+        $('#startquiz').prop('disabled', true);
+        console.log('in')
+
+        $.ajax({
+            type: 'GET',
+            contentType: 'application/json',
+            dataType: 'json',
+            url: 'http://127.0.0.1:8000/questionschoices',
+
+            success: function (data) {
+                console.log('data: ', data);
+
+                $('.question').append('<ul id="questions" class="list-group"><li class="list-group-item "><div class="py-2 h5" id="main"><b>Q  </b><srong id="question_title"></srong></div><a id="previous" class="btn btn-success m-3">previous</a><a id="next" href="" class="btn btn-success m-3">next</a><br></li></ul>');
+
+                $('#quizapp').remove()
+
+                a = $(this).attr('id')
+
+
+                ajax_call('http://127.0.0.1:8000/questionschoices')
+
+                $('#next').click(function (e) {
+
+                    e.preventDefault();
+                    ajax_call($('#next').attr('href'))
+
+                    resultsArray.map((obj) => { console.log(obj.id) })
+
+                });
+                $('#previous').click(function (e) {
+                    e.preventDefault();
+                    ajax_call($('#previous').attr('href'))
+
+                });
+
+                $('#submit').click(function () {
+                    $ajax({
+                        type: 'GET',
+                        contentType: 'application/json',
+                        dataType: 'json',
+                        url: 'http://127.0.0.1:8000/questions',
+
+                        success: function (data) {
+                            console.log('ans', data);
+                        }
+                    })
+                })
+
+            }
+        });
+    });
 
 </script>
 {% endblock %}

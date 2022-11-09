@@ -1,0 +1,7 @@
+<script>
+     function setAnsValue(value, id) {
+        var obj = {};
+         obj[`q${id}`] = value
+        resultsArray.push(obj);
+    }   
+    </script>
