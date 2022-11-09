@@ -23,7 +23,7 @@ class Question(models.Model):
 
 class Quiz(models.Model):
     category = models.ForeignKey(Category, on_delete=models.CASCADE)
-    question = models.OneToOneField(Question, on_delete=models.CASCADE)
+    question = models.ForeignKey(Question, on_delete=models.CASCADE)
     choice = ArrayField(
         models.CharField(max_length=1000, blank=True),
         size=4,

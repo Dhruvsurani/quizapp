@@ -27,3 +27,14 @@ class QuestionSerializer(serializers.ModelSerializer):
         model = Question
         fields = '__all__'
         read_only_fields = ('__all__',)
+
+
+class AnswerSerializer(serializers.ModelSerializer):
+
+    def get_answer(self, obj):
+        return obj.question.correct_answers
+
+    class Meta:
+        model = Question
+        fields = '__all__'
+        read_only_fields = ('__all__',)

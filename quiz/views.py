@@ -7,8 +7,8 @@ from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from .models import Category, Quiz
-from .serializers import CategorySerializer, QuizSerializer
+from .models import Category, Quiz, Question
+from .serializers import CategorySerializer, QuizSerializer, AnswerSerializer
 
 
 # Create your views here.
@@ -61,4 +61,10 @@ class AddCategories(generics.CreateAPIView):
     queryset = Category.objects.all()
 
 
+class CheckAnswer(generics.RetrieveAPIView):
+    serializer_class = AnswerSerializer
+    permission_classes = (AllowAny, )
+    def get_queryset(self):
+        ans = self.kwargs['pk']
+        return Question.objects.filter(id=ans)
 

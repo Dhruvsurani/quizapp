@@ -1,0 +1,232 @@
+{% comment %} {% extends 'quiz/base.html' %}
+
+{% block content %}
+<div class="container" id="quizapp">
+    <div class="row mx-auto m-5  justify-content-center align-items-center quiz">
+        <button id="startquiz" type="button" class="btn btn-primary">Start Quiz</button>
+
+    </div>
+    <div class="row mx-auto m-5   justify-content-center align-items-center quiz">
+
+        <ul id="cat1">
+
+        </ul>
+
+    </div>
+
+</div>
+<div class="container" id="question_list">
+    <div class="container mt-sm-5 my-1">
+        <div class="question ml-sm-5 pl-sm-5 pt-2">
+
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block script %}
+<script>
+        function ajax_call(url){
+            $.ajax({
+                type: 'GET',
+                contentType: 'application/json',
+                dataType:'json',
+                url: url,
+
+                success: function (data) {
+                    return data
+                }
+            });
+        }
+
+        $('#questions').remove();
+        $('button').click(function(){
+            $('#startquiz').prop('disabled', true);
+            console.log('in')
+
+            $.ajax({
+                type: 'GET',
+                contentType: 'application/json',
+                dataType:'json',
+                url: 'http://127.0.0.1:8000/list_category',
+
+                success: function (data) {
+                    console.log('data: ', data[0]);
+                    for (var x=0; x < data.length; x++){
+                        console.log(data[x].category_name)
+                        $('#cat1').append(`<a id="${data[x].id}" href="" style="margin:10px;" type="button" class="btn btn-primary">${data[x].category_name}</a>`);
+                    }
+
+                    $("a").click(function(e){
+                        $('.question').append('<ul id="questions" class="list-group"><li class="list-group-item "><div class="py-2 h5" id="main"><srong id="question_title"></srong></div><button id="previous" class="btn btn-success">previous</button><button id="next" class="btn btn-success">next</button><br></li></ul>');
+                        e.preventDefault();
+                        $('#quizapp').remove()
+                        $('#previous').hide();
+                        a = $(this).attr('id')
+
+                        function get_new(next){
+                            var next = next
+                            
+                            $.ajax({
+                                type: 'GET',
+                                contentType: 'application/json',
+                                dataType:'json',
+                                url: next,
+                                success: function(data){
+                                    console.log('next data', data)
+                                    $('#question_title').text(data.results[0].question_title)
+                                    $.each( data.results[0].choice, function( key, value ) {
+                                       $('#main').append(`<br>
+                                            <input type="radio" name="v">
+                                            <span class="checkmark"></span>
+                                            <label class="options">${value}</label></br>
+                                        `)
+                                    });
+
+                                    previous = data.previous
+                                    $('#previous').click(function(e){
+                                        $('#main').html('');
+                                        $(this).hide();
+                                        $("#main").empty();
+                                        $("#main").append('<srong id="question_title"></srong><br>');
+                                        get_pre(previous);
+                                    });
+                                    if (data.next === null){
+                                        console.log(data.next)
+                                        $('#next').hide();
+                                    }
+                                }
+                            });
+                        }
+
+                        function get_pre(previous){
+                            $('#next').show();
+                            
+                            var pre = previous
+                            $.ajax({
+                                type: 'GET',
+                                contentType: 'application/json',
+                                dataType:'json',
+                                url: pre,
+                                success: function(data){
+                                    console.log('pre data', data)
+                                    $('#question_title').text(data.results[0].question_title)
+                                    $.each( data.results[0].choice, function( key, value ) {
+                                       $('#main').append(`<br>
+                                            <input type="radio" name="v">
+                                            <span class="checkmark"></span>
+                                            <label class="options">${value}</label></br>
+                                        `)
+                                    });
+                                    next = data.next
+
+                                    $('#next').click(function(e){
+                                        $('#main').html('');
+                                        $('#previous').show();
+                                        e.preventDefault();
+                                        $("#main").empty();
+                                        $("#main").append('<srong id="question_title"></srong><br>');
+                                        get_new(next);
+                                    });
+
+                                    if (data.next === null){
+                                        console.log(data.next)
+                                        $('#next').hide();
+                                    }
+
+
+                                }
+                            });
+                        }
+
+                        data = ajax_call('http://127.0.0.1:8000/start/'+a)
+                        $('#question_title').text(data.results[0].question_title)
+                                $.each( data.results[0].choice, function( key, value ) {
+                                    $('#main').append(`<br>
+                                        <input type="radio" name="v">
+                                        <span class="checkmark"></span>
+                                        <label class="options">${value}</label></br>
+
+                                    `)
+                                });
+                        $.ajax({
+                            type: 'GET',
+                            contentType: 'application/json',
+                            dataType:'json',
+                            url: 'http://127.0.0.1:8000/start/'+a,
+
+                            success: function(data){
+
+                                console.log('hey',data)
+
+                                $('#question_title').text(data.results[0].question_title)
+                                $.each( data.results[0].choice, function( key, value ) {
+                                           $('#main').append(`<br>
+                                                <input type="radio" name="v">
+                                                <span class="checkmark"></span>
+                                                <label class="options">${value}</label></br>
+
+                                            `)
+
+                                });
+                                next = data.next
+
+                                $('#next').click(function(e){
+                                    $('#main').html('');
+                                    $('#previous').show();
+                                    e.preventDefault();
+                                    $("#main").empty();
+                                    $("#main").append('<srong id="question_title"></srong><br>');
+                                    get_new(next);
+                                });
+
+
+                            }
+                        });
+                    });
+                }
+            });
+        });
+
+</script>
+{% endblock %} {% endcomment %}
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>jquery set radio button checked based on value - itsolutionstuff.com</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+</head>
+<body>
+  
+<h1>jquery set radio button checked based on value - itsolutionstuff.com</h1>
+  
+<label>
+    <input type="radio" name="type" value="1"> User
+</label>
+<label>
+    <input type="radio" name="type" value="2"> Admin
+</label>
+  
+<button class="btn1">Select User</button>
+<button class="btn2">Select Admin</button>
+  
+<script>
+    $(document).ready(function(){
+  
+        $('.btn1').click(function(){
+            var value = 1;
+            $("input[name=type][value=" + value + "]").prop('checked', true);
+        });
+  
+        $('.btn2').click(function(){
+            var value = 2;
+            $("input[name=type][value=" + value + "]").prop('checked', true);
+        });
+  
+    });
+</script>
+  
+</body>
+</html>
