@@ -230,3 +230,135 @@
   
 </body>
 </html>
+
+
+
+
+
+{% extends 'quiz/base.html' %}
+
+{% block content %}
+<div class="container" id="quizapp">
+    <div class="row mx-auto m-5  justify-content-center align-items-center quiz">
+        <button id="startquiz" type="button" class="btn btn-primary">Start Quiz</button>
+
+    </div>
+    <div class="row mx-auto m-5   justify-content-center align-items-center quiz">
+
+        <ul id="cat1">
+
+        </ul>
+
+    </div>
+
+</div>
+<div class="container" id="question_list">
+    <div class="container mt-sm-5 my-1">
+        <div class="question ml-sm-5 pl-sm-5 pt-2">
+
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block script %}
+<script>
+        function ajax_call(url){
+           
+            $.ajax({
+                type: 'GET',
+                contentType: 'application/json',
+                dataType:'json',
+                url: url,
+                
+                success: function (data) {
+                    console.log(data)
+                    $('#main').html('')
+                    $("#main").append('<b>Q.  </b><srong id="question_title"></srong><br>');
+                    $('#question_title').text(data.results[0].question_title);
+                        $.each( data.results[0].choice, function( key, value ) {
+                            $('#main').append(`<br>
+                                <input id="${key}_${data.results[0].category}"  type="radio" name="${data.results[0].question_title}">
+                                
+                                <label class="options">${value}</label></br>
+                            `)
+                                              
+                        });
+                        
+                        
+                        
+                        if (data.next){
+                            $('#previous').hide();
+                            $('#next').attr('href', data.next)
+                        }
+                        if (data.previous){
+                            $('#previous').show();
+                            $('#previous').attr('href', data.previous)
+                        }
+                        
+     
+                }
+            });
+           
+        }
+        
+
+        function check_answer(data){
+            console.log('answer', data)
+        }
+        
+
+        $('#questions').remove();
+        $('button').click(function(){
+            localStorage.clear();
+            $('#startquiz').prop('disabled', true);
+            console.log('in')
+
+            $.ajax({
+                type: 'GET',
+                contentType: 'application/json',
+                dataType:'json',
+                url: 'http://127.0.0.1:8000/list_category',
+
+                success: function (data) {
+                    console.log('data: ', data[0]);
+                    for (var x=0; x < data.length; x++){
+                        console.log(data[x].category_name)
+                        $('#cat1').append(`<a id="${data[x].id}" href="" style="margin:10px;" type="button" class="btn btn-primary">${data[x].category_name}</a>`);
+                    }
+
+                    $("a").click(function(e){
+                        $('.question').append('<ul id="questions" class="list-group"><li class="list-group-item "><div class="py-2 h5" id="main"><b>Q  </b><srong id="question_title"></srong></div><a id="previous" class="btn btn-success m-3">previous</a><a id="next" href="" class="btn btn-success m-3">next</a><br></li></ul>');
+                        e.preventDefault();
+                        $('#quizapp').remove()
+                        
+                        a = $(this).attr('id')
+
+
+                        data = ajax_call('http://127.0.0.1:8000/start/'+a)
+                        data_ans = ajax_call('http://127.0.0.1:8000/answer/'+1)
+                        console.log('ans', data_ans)
+                        $('#next').click(function(e){
+                            
+                            e.preventDefault();
+                            ajax_call($('#next').attr('href'))
+                            check_answer(data_ans)
+                           
+                        });
+                        $('#previous').click(function(e){
+                            e.preventDefault();
+                            ajax_call($('#previous').attr('href'))
+                            
+                        });
+             
+                        
+                        
+                        
+                    });
+                }
+            });
+        });
+
+</script>
+{% endblock %}

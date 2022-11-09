@@ -36,18 +36,19 @@
                 url: url,
                 
                 success: function (data) {
-                    console.log(data)
+                    console.log('my que' ,data)
                     $('#main').html('')
                     $("#main").append('<b>Q.  </b><srong id="question_title"></srong><br>');
-                    $('#question_title').text(data.results[0].question_title);
+                    $('#question_title').text(data.results[0].question);
                         $.each( data.results[0].choice, function( key, value ) {
                             $('#main').append(`<br>
-                                <input id="${key}_${data.results[0].category}"  type="radio" name="${data.results[0].question_title}">
+                                <input id=""  type="radio" name="">
                                 
                                 <label class="options">${value}</label></br>
                             `)
-              
+                                              
                         });
+                        
                         
                         
                         if (data.next){
@@ -58,21 +59,16 @@
                             $('#previous').show();
                             $('#previous').attr('href', data.previous)
                         }
-
-
-                       
-                         
+                        if (variable != null){
+                            $('#next').hide();
+                        }
                         
+     
                 }
             });
            
         }
-
-        function check_answer(data){
-            
-        }
-        
-
+     
         $('#questions').remove();
         $('button').click(function(){
             localStorage.clear();
@@ -83,30 +79,25 @@
                 type: 'GET',
                 contentType: 'application/json',
                 dataType:'json',
-                url: 'http://127.0.0.1:8000/list_category',
+                url: 'http://127.0.0.1:8000/questionschoices',
 
                 success: function (data) {
-                    console.log('data: ', data[0]);
-                    for (var x=0; x < data.length; x++){
-                        console.log(data[x].category_name)
-                        $('#cat1').append(`<a id="${data[x].id}" href="" style="margin:10px;" type="button" class="btn btn-primary">${data[x].category_name}</a>`);
-                    }
-
-                    $("a").click(function(e){
+                    console.log('data: ', data);
+            
                         $('.question').append('<ul id="questions" class="list-group"><li class="list-group-item "><div class="py-2 h5" id="main"><b>Q  </b><srong id="question_title"></srong></div><a id="previous" class="btn btn-success m-3">previous</a><a id="next" href="" class="btn btn-success m-3">next</a><br></li></ul>');
-                        e.preventDefault();
+                        
                         $('#quizapp').remove()
                         
                         a = $(this).attr('id')
 
 
-                        data = ajax_call('http://127.0.0.1:8000/start/'+a)
-                        
+                        data = ajax_call('http://127.0.0.1:8000/questionschoices')
                         
                         $('#next').click(function(e){
                             
                             e.preventDefault();
                             ajax_call($('#next').attr('href'))
+                            
                            
                         });
                         $('#previous').click(function(e){
@@ -114,25 +105,11 @@
                             ajax_call($('#previous').attr('href'))
                             
                         });
-                        $(function(){
-                            $('input[type=radio]').each(function(){
-                                var state = JSON.parse( localStorage.getItem('radio_'  + $(this).attr('id')) );
-                                
-                                if (state) this.checked = state.checked;
-                            });
-                        });
+             
                         
-                        $(window).bind('unload', function(){
-                            $('input[type=radio]').each(function(){
-                                localStorage.setItem('radio_' + $(this).attr('id'), JSON.stringify({checked: this.checked})
-                                );
-                            });
-                        });
                         
-
-                        data_ans = ajax_call('http://127.0.0.1:8000/answer/'+1)
                         
-                    });
+                    
                 }
             });
         });
