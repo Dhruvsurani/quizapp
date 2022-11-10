@@ -84,10 +84,17 @@
                     var vid = `q${count}`;
 
                     $('#main').append(`<br>
-                                <input id="q${value}" onclick="setAnsValue(${value},${data.results[0].question_id})" type="radio" name="${data.results[0].question}">
+                                <input id="q${value}" class="${data.results[0].question_id}" onclick="setAnsValue(${value},${data.results[0].question_id})" type="radio" name="${data.results[0].question}">
                                 
                                 <label class="options">${value}</label></br>
                             `)
+
+                            $.each(resultsArray[0], function(key,chvalue){
+                                console.log(ch)
+                                if(chvalue == value){
+                                    $('#').prop('checked', true);
+                                }
+                            })
 
                 });
 
@@ -175,6 +182,7 @@
                             //resultsArray,ansArray
 
                             $.each(ansArray[0],function(key,value){
+                                console.log(key)
                                 if(key in resultsArray[0]){
                                     if(resultsArray[0][key] == value){
                                         correct_ans+=1
