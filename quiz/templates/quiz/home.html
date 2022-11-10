@@ -36,13 +36,21 @@
         var obj = {};
         
         if (resultsArray.length == 0) {
-            obj[idname] = `${value}`
+            obj[idname] = value;
             resultsArray.push(obj);
         }else{
-            resultsArray.forEach(function (o) {
-                resultsArray.filter(x => x[value])[0]
-                o[idname] = `${value}`
-            })
+            var nn = resultsArray.filter(x => x[idname])[0];
+            if(nn != undefined && nn != null){
+                nn[idname] = value;
+            }
+            else{
+                obj[idname] = value
+                resultsArray.push(obj);
+            }
+            // resultsArray.forEach(function (o) {
+            //     resultsArray.filter(x => x[value])[0]
+            //     o[idname] = `${value}`
+            // })
         }
         console.log('result', resultsArray)
     }
@@ -57,10 +65,18 @@
             obj1[aidname] = value
             ansArray.push(obj1);
         }else{
-            ansArray.forEach(function (o) {
-                ansArray.filter(x => x[value])[0]
-                o[aidname] = value
-            })
+            var nn = ansArray.filter(x => x[aidname])[0];
+            if(nn != undefined && nn != null){
+                nn[aidname] = value;
+            }
+            else{
+                obj1[aidname] = value
+                ansArray.push(obj1);
+            }
+            // ansArray.forEach(function (o) {
+            //     ansArray.filter(x => x[value])[0]
+            //     o[aidname] = value
+            //})
         }
         console.log('ansarray', ansArray)
     }
@@ -79,26 +95,35 @@
                 $("#main").append('<b>Q.  </b><srong id="question_title"></srong><br>');
                 $('#question_title').text(data.results[0].question);
                 var count = 0;
+                var rr = resultsArray.filter(x =>x[`q${data.results[0].question_id}`])[0];
                 $.each(data.results[0].choice, function (key, value) {
                     count = count + 1;
                     var vid = `q${count}`;
-
+                    var attrc = '';
+                    if(rr != undefined){
+                    if(rr[`q${data.results[0].question_id}`] == value && rr[`q${data.results[0].question_id}`] == value){
+                        attrc = 'checked';
+                    }
+                }
+                   
                     $('#main').append(`<br>
-                                <input id="q${value}" class="${data.results[0].question_id}" onclick="setAnsValue(${value},${data.results[0].question_id})" type="radio" name="${data.results[0].question}">
+                                <input id="q${value}${data.results[0].question_id}" class="${data.results[0].question_id}" onclick="setAnsValue('${value}',${data.results[0].question_id})" type="radio" name="${data.results[0].question}" ${attrc}>
                                 
                                 <label class="options">${value}</label></br>
                             `)
 
-                            $.each(resultsArray[0], function(key,chvalue){
-                                console.log(ch)
-                                if(chvalue == value){
-                                    $('#').prop('checked', true);
-                                }
-                            })
+                            // $.each(resultsArray[0], function(key,chvalue){
+                                
+                            //     if(key == vid){
+                            //         $(`#${value}${data.results[0].question_id}`).prop('checked', true);
+                            //     }
+                            // })
 
                 });
 
-
+                if(rr != null){
+                    $(`#q${data.results[0].question_id}`).prop('checked', true);
+                }
                 if (data.next) {
                     $('#next').show();
                     $('#previous').hide();
@@ -176,23 +201,31 @@
                             let incorrect_ans = 0
                             
                             data.forEach(function (o) {
-                                console.log(o)
-                                check_ans(o.id, o.correct_answers)
-                            })
-                            //resultsArray,ansArray
-
-                            $.each(ansArray[0],function(key,value){
-                                console.log(key)
-                                if(key in resultsArray[0]){
-                                    if(resultsArray[0][key] == value){
+                                var re = resultsArray.filter(x => x[`q${o.id}`])[0];
+                                if(re != undefined){
+                                    if(re[`q${o.id}`] == o.correct_answers){
                                         correct_ans+=1
-                                        
                                     }else{
                                         incorrect_ans+=1
                                     }
-                                    
                                 }
+                                console.log(o)
+                                //check_ans(o.id, o.correct_answers)
                             })
+                            //resultsArray,ansArray
+
+                            // $.each(ansArray[0],function(key,value){
+                            //     console.log(key)
+                            //     if(key in resultsArray[0]){
+                            //         if(resultsArray[0][key] == value){
+                            //             correct_ans+=1
+                                        
+                            //         }else{
+                                        
+                            //         }
+                                    
+                            //     }
+                            // })
                             $('.correct').html(`<h3><b>Correct : ${correct_ans}</b></h3>`)
                             $('.incorrect').html(`<h3><b>In Correct : ${incorrect_ans}</b></h3>`)
                             

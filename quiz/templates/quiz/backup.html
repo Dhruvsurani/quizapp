@@ -1,4 +1,4 @@
-{% comment %} {% extends 'quiz/base.html' %}
+<!-- {% comment %} {% extends 'quiz/base.html' %}
 
 {% block content %}
 <div class="container" id="quizapp">
@@ -399,4 +399,221 @@ $(document).on('click','#submit',function (e) {
         }
     })
     
-})
+}) -->
+
+
+
+
+{% extends 'quiz/base.html' %}
+
+{% block content %}
+<div class="container" id="quizapp">
+    <div class="row mx-auto m-5  justify-content-center align-items-center quiz">
+        <button id="startquiz" type="button" class="btn btn-primary">Start Quiz</button>
+
+    </div>
+    <div class="row mx-auto m-5   justify-content-center align-items-center quiz">
+
+        <ul id="cat1">
+
+        </ul>
+
+    </div>
+
+</div>
+<div class="container" id="question_list">
+    <div class="container mt-sm-5 my-1">
+        <div class="question ml-sm-5 pl-sm-5 pt-2">
+
+        </div>
+        <div class="result ml-sm-5 pl-sm-5 pt-2">
+
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block script %}
+<script>
+    resultsArray = [];
+    function setAnsValue(value, id) {
+        var idname = `q${id}`;
+        var obj = {};
+        
+        if (resultsArray.length == 0) {
+            obj[idname] = `${value}`
+            resultsArray.push(obj);
+        }else{
+            resultsArray.forEach(function (o) {
+                resultsArray.filter(x => x[value])[0]
+                o[idname] = `${value}`
+            })
+        }
+        console.log('result', resultsArray)
+    }
+
+
+    ansArray = [];
+
+    function check_ans(id, value){
+        var aidname = `q${id}`;
+        var obj1 = {};
+        if (ansArray.length == 0) {
+            obj1[aidname] = value
+            ansArray.push(obj1);
+        }else{
+            ansArray.forEach(function (o) {
+                ansArray.filter(x => x[value])[0]
+                o[aidname] = value
+            })
+        }
+        console.log('ansarray', ansArray)
+    }
+
+    function ajax_call(url) {
+
+        $.ajax({
+            type: 'GET',
+            contentType: 'application/json',
+            dataType: 'json',
+            url: url,
+
+            success: function (data) {
+                console.log('my que', data)
+                $('#main').html('')
+                $("#main").append('<b>Q.  </b><srong id="question_title"></srong><br>');
+                $('#question_title').text(data.results[0].question);
+                var count = 0;
+                $.each(data.results[0].choice, function (key, value) {
+                    count = count + 1;
+                    var vid = `q${count}`;
+
+                    $('#main').append(`<br>
+                                <input id="${value}${data.results[0].question_id}" class="${data.results[0].question_id}" onclick="setAnsValue(${value},${data.results[0].question_id})" type="radio" name="${data.results[0].question}">
+                                
+                                <label class="options">${value}</label></br>
+                            `)
+
+                            $.each(resultsArray[0], function(key,chvalue){
+                                
+                                if(key == vid){
+                                    $(`#${value}${data.results[0].question_id}`).prop('checked', true);
+                                }
+                            })
+
+                });
+
+
+                if (data.next) {
+                    $('#next').show();
+                    $('#previous').hide();
+                    $('#next').attr('href', data.next)
+                }
+                else {
+                    $('#next').hide();
+                    $('#main').append('<a id="submit" class="btn btn-success m-3">submit</a>');
+                    $('#submit').attr('href', 'http://127.0.0.1:8000/questions')
+                }
+                if (data.previous) {
+                    $('#previous').show();
+                    $('#previous').attr('href', data.previous)
+                }
+                else {
+                    $('#next').show();
+                }
+
+            }
+        });
+
+    }
+
+    $('#questions').remove();
+    $('button').click(function () {
+        localStorage.clear();
+        $('#startquiz').prop('disabled', true);
+        console.log('in')
+
+        $.ajax({
+            type: 'GET',
+            contentType: 'application/json',
+            dataType: 'json',
+            url: 'http://127.0.0.1:8000/questionschoices',
+
+            success: function (data) {
+                console.log('data: ', data);
+
+                $('.question').append('<ul id="questions" class="list-group"><li class="list-group-item "><div class="py-2 h5" id="main"><b>Q  </b><srong id="question_title"></srong></div><a id="previous" class="btn btn-success m-3">previous</a><a id="next" href="" class="btn btn-success m-3">next</a><br></li></ul>');
+
+                $('#quizapp').remove()
+
+                a = $(this).attr('id')
+
+
+                ajax_call('http://127.0.0.1:8000/questionschoices')
+
+                $('#next').click(function (e) {
+
+                    e.preventDefault();
+                    ajax_call($('#next').attr('href'))
+
+                    //resultsArray.map((obj) => { console.log('obj', obj[0]) })
+                    console.log('result', resultsArray)
+
+                });
+                $('#previous').click(function (e) {
+                    e.preventDefault();
+                    ajax_call($('#previous').attr('href'))
+
+                });
+
+                $(document).on('click','#submit',function (e) {
+                    e.preventDefault();
+                    $.ajax({
+                        type: 'GET',
+                        contentType: 'application/json',
+                        dataType: 'json',
+                        url: 'http://127.0.0.1:8000/questions',
+                    
+                        success: function (data) {
+                            $('.question').remove();
+                            $('.result').append('<div class="card"><h5 class="card-header text-center bold">Result</h5><div class="card-body score"><p class="text-center correct"></p><p class="text-center incorrect"></p></div></div><br>');
+                            let correct_ans = 0
+                            let incorrect_ans = 0
+                            
+                            data.forEach(function (o) {
+                                console.log(o)
+                                check_ans(o.id, o.correct_answers)
+                            })
+                            //resultsArray,ansArray
+
+                            $.each(ansArray[0],function(key,value){
+                                console.log(key)
+                                if(key in resultsArray[0]){
+                                    if(resultsArray[0][key] == value){
+                                        correct_ans+=1
+                                        
+                                    }else{
+                                        incorrect_ans+=1
+                                    }
+                                    
+                                }
+                            })
+                            $('.correct').html(`<h3><b>Correct : ${correct_ans}</b></h3>`)
+                            $('.incorrect').html(`<h3><b>In Correct : ${incorrect_ans}</b></h3>`)
+                            
+                            //resultsArray.forEach(function (o) {
+                             //   resultsArray.filter(x => x[value])[0]
+                            //})
+                            //console.log('result data', data)
+                        }
+                    })
+                    
+                })
+
+            }
+        });
+    });
+
+</script>
+{% endblock %}
