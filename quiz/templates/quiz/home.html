@@ -20,6 +20,9 @@
         <div class="question ml-sm-5 pl-sm-5 pt-2">
 
         </div>
+        <div class="result ml-sm-5 pl-sm-5 pt-2">
+
+        </div>
     </div>
 </div>
 
@@ -30,41 +33,36 @@
     resultsArray = [];
     function setAnsValue(value, id) {
         var idname = `q${id}`;
-        var check = false;
-        // $.map(resultsArray, function(elementOfArray, indexInArray) {
-        //     if (elementOfArray) {
-            
-        //     }
-        //     });
         var obj = {};
-        obj[idname] = value
         
-        resultsArray.push(obj);
-        
-            // if(resultsArray.length == 0){
-            //     obj[idname] = value
-            //             resultsArray.push(obj);
-                
-            // }else{
-            //     resultsArray.forEach(function(o) {
-            //     Object.keys(o).forEach(function(prop) {
-            //         if(prop != idname){
-            //             obj[idname] = value
-            //             resultsArray.push(obj);
-            //             check = true;
-            //         }
-            //     });
-            //     if(!check){
-            //         o[idname] = value;
-            //     }
-            // });
-            // }
-           
-        
-         
+        if (resultsArray.length == 0) {
+            obj[idname] = `${value}`
+            resultsArray.push(obj);
+        }else{
+            resultsArray.forEach(function (o) {
+                resultsArray.filter(x => x[value])[0]
+                o[idname] = `${value}`
+            })
+        }
+        console.log('result', resultsArray)
     }
-    function checkanswer(resultsArray) {
 
+
+    ansArray = [];
+
+    function check_ans(id, value){
+        var aidname = `q${id}`;
+        var obj1 = {};
+        if (ansArray.length == 0) {
+            obj1[aidname] = value
+            ansArray.push(obj1);
+        }else{
+            ansArray.forEach(function (o) {
+                ansArray.filter(x => x[value])[0]
+                o[aidname] = value
+            })
+        }
+        console.log('ansarray', ansArray)
     }
 
     function ajax_call(url) {
@@ -86,15 +84,12 @@
                     var vid = `q${count}`;
 
                     $('#main').append(`<br>
-                                <input  onclick="setAnsValue(${value},${data.results[0].id})" type="radio" name="${data.results[0].question}">
+                                <input id="q${value}" onclick="setAnsValue(${value},${data.results[0].question_id})" type="radio" name="${data.results[0].question}">
                                 
                                 <label class="options">${value}</label></br>
                             `)
 
                 });
-                
-
-
 
 
                 if (data.next) {
@@ -105,6 +100,7 @@
                 else {
                     $('#next').hide();
                     $('#main').append('<a id="submit" class="btn btn-success m-3">submit</a>');
+                    $('#submit').attr('href', 'http://127.0.0.1:8000/questions')
                 }
                 if (data.previous) {
                     $('#previous').show();
@@ -148,7 +144,8 @@
                     e.preventDefault();
                     ajax_call($('#next').attr('href'))
 
-                    resultsArray.map((obj) => { console.log(obj.id) })
+                    //resultsArray.map((obj) => { console.log('obj', obj[0]) })
+                    console.log('result', resultsArray)
 
                 });
                 $('#previous').click(function (e) {
@@ -157,17 +154,47 @@
 
                 });
 
-                $('#submit').click(function () {
-                    $ajax({
+                $(document).on('click','#submit',function (e) {
+                    e.preventDefault();
+                    $.ajax({
                         type: 'GET',
                         contentType: 'application/json',
                         dataType: 'json',
                         url: 'http://127.0.0.1:8000/questions',
-
+                    
                         success: function (data) {
-                            console.log('ans', data);
+                            $('.question').remove();
+                            $('.result').append('<div class="card"><h5 class="card-header text-center bold">Result</h5><div class="card-body score"><p class="text-center correct"></p><p class="text-center incorrect"></p></div></div><br>');
+                            let correct_ans = 0
+                            let incorrect_ans = 0
+                            
+                            data.forEach(function (o) {
+                                console.log(o)
+                                check_ans(o.id, o.correct_answers)
+                            })
+                            //resultsArray,ansArray
+
+                            $.each(ansArray[0],function(key,value){
+                                if(key in resultsArray[0]){
+                                    if(resultsArray[0][key] == value){
+                                        correct_ans+=1
+                                        
+                                    }else{
+                                        incorrect_ans+=1
+                                    }
+                                    
+                                }
+                            })
+                            $('.correct').html(`<h3><b>Correct : ${correct_ans}</b></h3>`)
+                            $('.incorrect').html(`<h3><b>In Correct : ${incorrect_ans}</b></h3>`)
+                            
+                            //resultsArray.forEach(function (o) {
+                             //   resultsArray.filter(x => x[value])[0]
+                            //})
+                            //console.log('result data', data)
                         }
                     })
+                    
                 })
 
             }

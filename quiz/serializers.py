@@ -8,7 +8,7 @@ class QuestionChoiceSerializer(serializers.ModelSerializer):
     question = serializers.CharField(source='question.title')
     class Meta:
         model = QuestionChoice
-        fields = ('question', 'choice')
+        fields = ('id','question_id', 'question', 'choice')
         
 
 

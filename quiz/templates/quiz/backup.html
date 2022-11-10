@@ -362,3 +362,41 @@
 
 </script>
 {% endblock %}
+
+
+if (resultsArray.length == 0) {
+    obj[id] = value
+    resultsArray.push(obj);
+
+} else {
+    resultsArray.forEach(function (o) {
+        Object.keys(o).forEach(function (prop) {
+            if (prop != id) {
+                obj[id] = value
+                resultsArray.push(obj);
+                check = true;
+            }
+            if (check == false) {
+                o[id] = value;
+            }
+        });
+        
+    });
+}
+
+
+$(document).on('click','#submit',function (e) {
+    e.preventDefault();
+    $.ajax({
+        type: 'GET',
+        contentType: 'application/json',
+        dataType: 'json',
+        url: 'http://127.0.0.1:8000/questions',
+    
+        success: function (data) {
+            $('.question').remove();
+            $('.result').append('<ul id="questions" class="list-group"><li class="list-group-item "><div class="py-2 h5" id="main"><b>Q  </b><srong id="question_title"></srong></div><br></li></ul>');
+        }
+    })
+    
+})
