@@ -23,4 +23,7 @@ class QuestionChoice(models.Model):
         return self.question.title
 
 
+# class UserAttempts(models.Model):
+    
+
 

@@ -8,9 +8,25 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework import viewsets
 from .models import Question, QuestionChoice
-from .serializers import QuestionChoiceSerializer, QuestionSerializer
+from .serializers import QuestionChoiceSerializer, QuestionSerializer, UserSerializer, RegisterSerializer
+from rest_framework.authentication import TokenAuthentication
+from django.contrib.auth.models import User
 
 # Create your views here.
+
+class UserDetailAPI(APIView):
+  authentication_classes = (TokenAuthentication,)
+  permission_classes = (AllowAny,)
+  def get(self,request,*args,**kwargs):
+    user = User.objects.get(id=request.user.id)
+    serializer = UserSerializer(user)
+    return Response(serializer.data)
+
+
+class RegisterUserAPIView(generics.CreateAPIView):
+  permission_classes = (AllowAny,)
+  serializer_class = RegisterSerializer
+  
 
 class HomeView(TemplateView):
     template_name = 'quiz/home.html'
