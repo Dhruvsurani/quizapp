@@ -215,7 +215,7 @@
                            
                             $('.correct').html(`<h3><b>Correct : ${correct_ans}</b></h3>`)
                             $('.incorrect').html(`<h3><b>In Correct : ${incorrect_ans}</b></h3>`)
-                            
+                            $('.score').append(`<a id="attempts" class="btn btn-success m-3">Your Attempts</a>`)
                             //resultsArray.forEach(function (o) {
                              //   resultsArray.filter(x => x[value])[0]
                             //})
@@ -223,6 +223,38 @@
                         }
                     })
                     
+                })
+
+                $(document).on('click', '#attempts', function(e){
+                    $('#attempts').prop('disabled', true);
+                    e.preventDefault();
+                    $.ajax({
+                        type: 'GET',
+                        contentType: 'application/json',
+                        dataType: 'json',
+                        url: 'http://127.0.0.1:8000/userattempts',
+
+                        success: function(data){
+                            $('.score').append(`<table class="table table-dark">
+                                <thead>
+                                  <tr>
+                                    <th scope="col">#</th>
+                                    <th scope="col">User name</th>
+                                    <th scope="col">Correct_Count</th>
+                                    <th scope="col">Incorrect_Count</th>
+                                  </tr>
+                                </thead><tbody class="allattempts">
+                                    
+                                  </tbody>
+                                </table>`)
+                            $.each(data, function(d){
+                                $('.allattempts').after(`<th scope="row">${d.id}</th>
+                                <td>${d.user}</td>
+                                <td>${d.Correct_Count}</td>
+                                <td>${d.Incorrect_Count}</td>`)
+                            })
+                        }
+                    })
                 })
 
             }

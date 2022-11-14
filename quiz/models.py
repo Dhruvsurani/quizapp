@@ -23,7 +23,10 @@ class QuestionChoice(models.Model):
         return self.question.title
 
 
-# class UserAttempts(models.Model):
+class UserAttempts(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    Correct_Count = models.IntegerField(default=0)
+    Incorrect_Count = models.IntegerField(default=0)
     
 
 

@@ -1,0 +1,30 @@
+{% extends 'quiz/base.html' %}
+{% block content %}
+<div class="container" id="quizapp">
+  <div class="row mx-auto m-5  justify-content-center align-items-center quiz">
+      <form  method="POST">
+        {% csrf_token %}
+        {% comment %} {{ form }} {% endcomment %}
+        <!-- Email input -->
+        <div class="form-outline mb-4">
+          <label class="form-label" style="color:white;" for="username">User Name</label>
+          <input type="text" name="username" id="username" class="form-control" />
+          {% comment %} <input type="text"  autofocus="" autocapitalize="none" autocomplete="username" maxlength="150" required="" id="id_username"> {% endcomment %}
+          
+        </div>
+      
+        <!-- Password input -->
+        <div class="form-outline mb-4">
+          <label class="form-label" style="color:white;" for="password">Password</label>
+          <input type="password" name="password" id="password" class="form-control" />
+          {% comment %} <input type="password"  autocomplete="current-password" required="" id="id_password"> {% endcomment %}
+          
+        </div>
+
+        <!-- Submit button -->
+        <button type="Submit" class="btn btn-primary btn-block mb-4">Sign in</button>
+      
+      </form>
+  </div>
+</div>
+{% endblock %}

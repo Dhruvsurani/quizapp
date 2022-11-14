@@ -7,20 +7,13 @@ from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework import viewsets
-from .models import Question, QuestionChoice
-from .serializers import QuestionChoiceSerializer, QuestionSerializer, UserSerializer, RegisterSerializer
+from .models import Question, QuestionChoice, UserAttempts
+from .serializers import QuestionChoiceSerializer, QuestionSerializer, UserAttemptsSerializer, UserSerializer, RegisterSerializer
 from rest_framework.authentication import TokenAuthentication
 from django.contrib.auth.models import User
+from django.contrib.auth.mixins import LoginRequiredMixin
 
 # Create your views here.
-
-class UserDetailAPI(APIView):
-  authentication_classes = (TokenAuthentication,)
-  permission_classes = (AllowAny,)
-  def get(self,request,*args,**kwargs):
-    user = User.objects.get(id=request.user.id)
-    serializer = UserSerializer(user)
-    return Response(serializer.data)
 
 
 class RegisterUserAPIView(generics.CreateAPIView):
@@ -28,8 +21,9 @@ class RegisterUserAPIView(generics.CreateAPIView):
   serializer_class = RegisterSerializer
   
 
-class HomeView(TemplateView):
-    template_name = 'quiz/home.html'
+class HomeView(LoginRequiredMixin, TemplateView):
+  login_url = '/'
+  template_name = 'quiz/home.html'
 
 
 class LargeResultsSetPagination(PageNumberPagination):
@@ -50,3 +44,20 @@ class QuestionChoies(generics.ListAPIView):
     queryset = QuestionChoice.objects.all()
     filter_fields = ('id')
 
+class UserAttemptsList(APIView):
+    """
+    List all Transformers, or create a new Transformer
+    """
+    permission_classes = (AllowAny, )
+    def get(self, request, format=None):
+        User_attempts = UserAttempts.objects.filter(user=request.user.id)
+        serializer = UserAttemptsSerializer(User_attempts, many=True)
+        return Response(serializer.data)
+  
+    def post(self, request, format=None):
+        serializer = UserAttemptsSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data,
+                            status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

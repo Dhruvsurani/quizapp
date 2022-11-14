@@ -5,14 +5,14 @@ from rest_framework_simplejwt.views import (
     TokenRefreshView,
     TokenVerifyView,
 )
+from django.contrib.auth.views import LoginView, LogoutView
 
 urlpatterns = [
-    path('token/create/', TokenObtainPairView.as_view(), name='token_create'),
-    path('token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
-    path('token/verify/', TokenVerifyView.as_view(), name='token_verify'),
-    # path("get-details",views.UserDetailAPI.as_view()),
-    # path('register',views.RegisterUserAPIView.as_view()),
-    path('', views.HomeView.as_view(), name='home'),
+    path('', LoginView.as_view(template_name='users/login.html', redirect_authenticated_user=True), name='login'),
+    path('register',views.RegisterUserAPIView.as_view(), name='register'),
+    path('logout/', LogoutView.as_view(), name='logout'),
+    path('home', views.HomeView.as_view(), name='home'),
     path('questions', views.GetQuestions.as_view()),
-    path('questionschoices', views.QuestionChoies.as_view())
+    path('questionschoices', views.QuestionChoies.as_view()),
+    path('userattempts', views.UserAttemptsList.as_view()),
 ]
