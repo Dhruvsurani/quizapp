@@ -45,12 +45,10 @@ class QuestionChoies(generics.ListAPIView):
     filter_fields = ('id')
 
 class UserAttemptsList(APIView):
-    """
-    List all Transformers, or create a new Transformer
-    """
-    permission_classes = (AllowAny, )
+    
     def get(self, request, format=None):
         User_attempts = UserAttempts.objects.filter(user=request.user.id)
+        print(User_attempts)
         serializer = UserAttemptsSerializer(User_attempts, many=True)
         return Response(serializer.data)
   

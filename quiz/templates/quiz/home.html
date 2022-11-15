@@ -128,18 +128,23 @@
                     $('#next').show();
                     $('#previous').hide();
                     $('#next').attr('href', data.next)
+                    $('#submit').hide();
                 }
                 else {
                     $('#next').hide();
-                    $('#main').append('<a id="submit" class="btn btn-success m-3">submit</a>');
+                    
+                    $('<a id="submit" class="btn btn-primary m-3">submit</a>').insertAfter('#previous');
+                    $('#submit').show();
                     $('#submit').attr('href', 'http://127.0.0.1:8000/questions')
                 }
                 if (data.previous) {
                     $('#previous').show();
+                    
                     $('#previous').attr('href', data.previous)
                 }
                 else {
                     $('#next').show();
+                    $('#submit').hide();
                 }
 
             }
@@ -162,7 +167,7 @@
             success: function (data) {
                 console.log('data: ', data);
 
-                $('.question').append('<ul id="questions" class="list-group"><li class="list-group-item "><div class="py-2 h5" id="main"><b>Q  </b><srong id="question_title"></srong></div><a id="previous" class="btn btn-success m-3">previous</a><a id="next" href="" class="btn btn-success m-3">next</a><br></li></ul>');
+                $('.question').append('<ul id="questions" class="list-group"><li class="list-group-item "><div class="py-2 h5" id="main"><b>Q  </b><srong id="question_title"></srong></div><a id="previous" class="btn btn-success  mr-auto">previous</a><a id="next" href="" class="btn btn-success m-3">next</a><br></li></ul>');
 
                 $('#quizapp').remove()
 
@@ -188,6 +193,9 @@
 
                 $(document).on('click','#submit',function (e) {
                     e.preventDefault();
+                    var users_id = '{{request.user.id}}'
+                    
+                    
                     $.ajax({
                         type: 'GET',
                         contentType: 'application/json',
@@ -197,8 +205,8 @@
                         success: function (data) {
                             $('.question').remove();
                             $('.result').append('<div class="card"><h5 class="card-header text-center bold">Result</h5><div class="card-body score"><p class="text-center correct"></p><p class="text-center incorrect"></p></div></div><br>');
-                            let correct_ans = 0
-                            let incorrect_ans = 0
+                            var correct_ans = 0
+                            var incorrect_ans = 0
                             
                             data.forEach(function (o) {
                                 var re = resultsArray.filter(x => x[`q${o.id}`])[0];
@@ -212,22 +220,40 @@
                                 console.log(o)
                                
                             })
-                           
+                            
                             $('.correct').html(`<h3><b>Correct : ${correct_ans}</b></h3>`)
                             $('.incorrect').html(`<h3><b>In Correct : ${incorrect_ans}</b></h3>`)
-                            $('.score').append(`<a id="attempts" class="btn btn-success m-3">Your Attempts</a>`)
+                            $('.score').append(`<a id="attempts" class="attempts btn btn-success m-3">Your Attempts</a>`)
+                            $('.at').append(`<a id="" class="attempts btn btn-success m-3">Your Attempts</a>`)
                             //resultsArray.forEach(function (o) {
                              //   resultsArray.filter(x => x[value])[0]
                             //})
                             //console.log('result data', data)
+                            $.ajax({
+                                type: 'POST',
+                                contentType: 'application/json',
+                                dataType: 'json',
+                                url: 'http://127.0.0.1:8000/userattempts',
+                                data: JSON.stringify({
+                                    "user_id": users_id,
+                                    "Correct_Count": correct_ans,
+                                    "Incorrect_Count": incorrect_ans
+                                }),
+
+                                success: function(data, ){
+                                    console.log('success')
+                                }
+                            })
                         }
                     })
                     
+                    
                 })
 
-                $(document).on('click', '#attempts', function(e){
+                $(document).on('click', '.attempts', function(e){
                     $('#attempts').prop('disabled', true);
                     e.preventDefault();
+                    var usersname = '{{request.user}}'
                     $.ajax({
                         type: 'GET',
                         contentType: 'application/json',
@@ -235,6 +261,7 @@
                         url: 'http://127.0.0.1:8000/userattempts',
 
                         success: function(data){
+                            console.log(data)
                             $('.score').append(`<table class="table table-dark">
                                 <thead>
                                   <tr>
@@ -247,11 +274,17 @@
                                     
                                   </tbody>
                                 </table>`)
-                            $.each(data, function(d){
-                                $('.allattempts').after(`<th scope="row">${d.id}</th>
-                                <td>${d.user}</td>
-                                <td>${d.Correct_Count}</td>
-                                <td>${d.Incorrect_Count}</td>`)
+                            
+                            var attempts = 1
+                            $.each(data, function(key, value){
+                                console.log(key,value)
+                                
+                                $('.allattempts').append(`<tr><th scope="row">${attempts}</th>
+                                    <td>${usersname}</td>
+                                    <td>${value.Correct_Count}</td>
+                                    <td>${value.Incorrect_Count}</td></tr>`)
+                                attempts+=1
+                                
                             })
                         }
                     })

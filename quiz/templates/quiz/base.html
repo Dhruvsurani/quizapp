@@ -34,15 +34,15 @@
       </button>
 
       <div class="collapse navbar-collapse " id="navbarSupportedContent">
-        <ul class="navbar-nav mr-auto">
+        <ul class="at navbar-nav mr-auto">
           
-
+          
           
         </ul>
         <div class="form-inline my-2 my-lg-0">
           {% if user.is_authenticated %}
           <img src="https://cdn0.iconfinder.com/data/icons/avatars-3/512/avatar_hipster_guy-512.png">
-          <span>{{ request.user.username }}</span>
+          <span id="username">{{ request.user.username }}</span>
           {% endif %}
           <a  class="ml-4" href="{% url 'logout' %}"> <button type="button" class="btn btn-default btn-sm">
             <span class="glyphicon glyphicon-log-out"></span> Log out
