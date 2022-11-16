@@ -43,10 +43,11 @@
           {% if user.is_authenticated %}
           <img src="https://cdn0.iconfinder.com/data/icons/avatars-3/512/avatar_hipster_guy-512.png">
           <span id="username">{{ request.user.username }}</span>
-          {% endif %}
+          
           <a  class="ml-4" href="{% url 'logout' %}"> <button type="button" class="btn btn-default btn-sm">
             <span class="glyphicon glyphicon-log-out"></span> Log out
           </button></a>
+          {% endif %}
         </div>
       </div>
     </nav>

@@ -30,9 +30,24 @@
 
 {% block script %}
 <script>
+    user = window.localStorage.getItem('username');
+    console.log(user, 'username')
+    $(document).ready(function(){
+        $.ajax({
+            type: 'GET',
+            contentType: 'application/json',
+            dataType: 'json',
+            url: 'http://127.0.0.1:8000/user',
+        
+            success: function (data) {
+                console.log(data)
+            }
+        });
+    })
+
     resultsArray = [];
     function setAnsValue(value, id) {
-        var idname = `q${id}`;
+        var idname = `${id}`;
         var obj = {};
         
         if (resultsArray.length == 0) {
@@ -59,7 +74,7 @@
     ansArray = [];
 
     function check_ans(id, value){
-        var aidname = `q${id}`;
+        var aidname = `${id}`;
         var obj1 = {};
         if (ansArray.length == 0) {
             obj1[aidname] = value
@@ -95,19 +110,19 @@
                 $("#main").append('<b>Q.  </b><srong id="question_title"></srong><br>');
                 $('#question_title').text(data.results[0].question);
                 var count = 0;
-                var rr = resultsArray.filter(x =>x[`q${data.results[0].question_id}`])[0];
+                var rr = resultsArray.filter(x =>x[`${data.results[0].question_id}`])[0];
                 $.each(data.results[0].choice, function (key, value) {
                     count = count + 1;
-                    var vid = `q${count}`;
+                    var vid = `${count}`;
                     var attrc = '';
                     if(rr != undefined){
-                    if(rr[`q${data.results[0].question_id}`] == value && rr[`q${data.results[0].question_id}`] == value){
+                    if(rr[`${data.results[0].question_id}`] == value && rr[`${data.results[0].question_id}`] == value){
                         attrc = 'checked';
                     }
                 }
                    
                     $('#main').append(`<br>
-                                <input id="q${value}${data.results[0].question_id}" class="${data.results[0].question_id}" onclick="setAnsValue('${value}',${data.results[0].question_id})" type="radio" name="${data.results[0].question}" ${attrc}>
+                                <input id="${value}${data.results[0].question_id}" class="${data.results[0].question_id}" onclick="setAnsValue('${value}',${data.results[0].question_id})" type="radio" name="${data.results[0].question}" ${attrc}>
                                 
                                 <label class="options">${value}</label></br>
                             `)
@@ -122,7 +137,7 @@
                 });
 
                 if(rr != null){
-                    $(`#q${data.results[0].question_id}`).prop('checked', true);
+                    $(`#${data.results[0].question_id}`).prop('checked', true);
                 }
                 if (data.next) {
                     $('#next').show();
@@ -154,7 +169,7 @@
 
     $('#questions').remove();
     $('button').click(function () {
-        localStorage.clear();
+        
         $('#startquiz').prop('disabled', true);
         console.log('in')
 
@@ -193,7 +208,8 @@
 
                 $(document).on('click','#submit',function (e) {
                     e.preventDefault();
-                    var users_id = '{{request.user.id}}'
+                    
+
                     
                     
                     $.ajax({
@@ -209,9 +225,9 @@
                             var incorrect_ans = 0
                             
                             data.forEach(function (o) {
-                                var re = resultsArray.filter(x => x[`q${o.id}`])[0];
+                                var re = resultsArray.filter(x => x[`${o.id}`])[0];
                                 if(re != undefined){
-                                    if(re[`q${o.id}`] == o.correct_answers){
+                                    if(re[`${o.id}`] == o.correct_answers){
                                         correct_ans+=1
                                     }else{
                                         incorrect_ans+=1

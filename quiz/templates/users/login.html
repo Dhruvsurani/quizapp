@@ -2,7 +2,7 @@
 {% block content %}
 <div class="container" id="quizapp">
   <div class="row mx-auto m-5  justify-content-center align-items-center quiz">
-      <form  method="POST">
+      <form  method="POST" id='login'>
         {% csrf_token %}
         {% comment %} {{ form }} {% endcomment %}
         <!-- Email input -->
@@ -27,4 +27,38 @@
       </form>
   </div>
 </div>
+{% endblock %}
+
+{% block script %}
+  <script>
+    $('#login').submit(function(e){
+      e.preventDefault();
+     
+      
+      $.ajax({
+        dataType: 'json',
+        url: "http://127.0.0.1:8000/login",
+        type: "POST",
+        data: JSON.stringify({
+          "username": $('#username').val(),
+          "password": $('#password').val()
+        }),
+        
+        contentType: 'application/json',
+        success: function (data) {
+            // store tokens in localStorage
+            window.localStorage.setItem('username',$('#username').val() );
+            window.localStorage.setItem('refreshToken', data['refresh']);
+            window.localStorage.setItem('accessToken', data['access']);
+            console.log(data)
+            window.location.href = "/home";
+        },
+        error: function (rs, e) {
+            console.error(rs.status);
+            console.error(rs.responseText);
+        }
+    });
+
+    })
+  </script>
 {% endblock %}
