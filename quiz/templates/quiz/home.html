@@ -31,21 +31,7 @@
 
 {% block script %}
 <script>
-    //user = window.localStorage.getItem('username');
-    // console.log(user, 'username')
-    //$(document).ready(function(){
-    // $.ajax({
-    //  type: 'GET',
-    //  contentType: 'application/json',
-    // dataType: 'json',
-    // url: 'http://127.0.0.1:8000/user',
-
-    // success: function (data) {
-    //     console.log(data)
-    //}
-    //});
-    // })
-
+    
     resultsArray = [];
     function setAnsValue(value, id) {
         var idname = `${id}`;
@@ -63,10 +49,6 @@
                 obj[idname] = value
                 resultsArray.push(obj);
             }
-            // resultsArray.forEach(function (o) {
-            //     resultsArray.filter(x => x[value])[0]
-            //     o[idname] = `${value}`
-            // })
         }
         console.log('result', resultsArray)
     }
@@ -89,10 +71,6 @@
                 obj1[aidname] = value
                 ansArray.push(obj1);
             }
-            // ansArray.forEach(function (o) {
-            //     ansArray.filter(x => x[value])[0]
-            //     o[aidname] = value
-            //})
         }
         console.log('ansarray', ansArray)
     }
@@ -128,13 +106,6 @@
                                 <label class="options">${value}</label></br>
                             `)
 
-                    // $.each(resultsArray[0], function(key,chvalue){
-
-                    //     if(key == vid){
-                    //         $(`#${value}${data.results[0].question_id}`).prop('checked', true);
-                    //     }
-                    // })
-
                 });
 
                 if (rr != null) {
@@ -167,11 +138,7 @@
         });
 
     }
-        $('#logout').submit(function(e){
-            e.preventDefault();
-            localStorage.clear();
-            window.location.href = "http://127.0.0.1:8000";
-        })
+        
     
         $('.userdetail').css("display", "block")
         $('#questions').remove();
