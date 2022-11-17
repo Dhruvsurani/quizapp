@@ -39,15 +39,15 @@
           
           
         </ul>
-        <div class="form-inline my-2 my-lg-0">
-          {% if user.is_authenticated %}
-          <img src="https://cdn0.iconfinder.com/data/icons/avatars-3/512/avatar_hipster_guy-512.png">
-          <span id="username">{{ request.user.username }}</span>
+        <div class="form-inline my-2 my-lg-0 userdetail" style="display: none">
+         
+          <img alt='' src="https://cdn0.iconfinder.com/data/icons/avatars-3/512/avatar_hipster_guy-512.png">
+          <span id="pusername"></span>
           
-          <a  class="ml-4" href="{% url 'logout' %}"> <button type="button" class="btn btn-default btn-sm">
-            <span class="glyphicon glyphicon-log-out"></span> Log out
+          <a  class="ml-4"   href=""> <button type="button" id="logout"  class="btn btn-default btn-sm">
+            <span class="glyphicon glyphicon-log-out" ></span> Log out
           </button></a>
-          {% endif %}
+         
         </div>
       </div>
     </nav>
@@ -63,7 +63,7 @@
     {% block script %}
     {% endblock %}
         <script>
-
+          $('#pusername').text(localStorage.getItem('username'))
                 
         </script>
     <script src="https://cdn.jsdelivr.net/npm/popper.js@1.14.7/dist/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
