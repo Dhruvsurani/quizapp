@@ -10,6 +10,7 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/4.0/ref/settings/
 """
 
+from datetime import timedelta
 from pathlib import Path
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -170,3 +171,8 @@ CORS_ALLOW_HEADERS = [
 CORS_ORIGIN_WHITELIST = (
     'http://127.0.0.1:5500',
 )
+DEFAULT = {
+    'ACCESS_TOKEN_LIFETIME': timedelta(seconds=10), 
+    'REFRESH_TOKEN_LIFETIME': timedelta(seconds=10)
+}
+
