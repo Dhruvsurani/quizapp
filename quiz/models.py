@@ -25,9 +25,8 @@ class QuestionChoice(models.Model):
 
 class UserAttempts(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
-    Completed_Ans = ArrayField(
-        models.IntegerField(blank=True),
-        default=list
+    Completed_Ans = ArrayField(ArrayField(models.IntegerField(blank=True))
+        
     )
     Correct_Count = models.IntegerField()
     Incorrect_Count = models.IntegerField()

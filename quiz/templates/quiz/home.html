@@ -31,7 +31,9 @@
 
 {% block script %}
 <script>
-    
+    questionid = ''
+    attempted_questions = []
+    questionid_list = []
     resultsArray = [];
     function setAnsValue(value, id) {
         var idname = `${id}`;
@@ -40,6 +42,7 @@
         if (resultsArray.length == 0) {
             obj[idname] = value;
             resultsArray.push(obj);
+            questionid_list.push([id])
         } else {
             var nn = resultsArray.filter(x => x[idname])[0];
             if (nn != undefined && nn != null) {
@@ -48,6 +51,7 @@
             else {
                 obj[idname] = value
                 resultsArray.push(obj);
+                questionid_list.push([id])
             }
         }
         console.log('result', resultsArray)
@@ -75,6 +79,7 @@
         console.log('ansarray', ansArray)
     }
     
+
     function ajax_call(url) {
 
         $.ajax({
@@ -99,18 +104,43 @@
                             attrc = 'checked';
                         }
                     }
-
+                    questionid = data.results[0].question_id
                     $('#main').append(`<br>
                                 <input id="${value}${data.results[0].question_id}" class="${data.results[0].question_id}" onclick="setAnsValue('${value}',${data.results[0].question_id})" type="radio" name="${data.results[0].question}" ${attrc}>
                                 
                                 <label class="options">${value}</label></br>
                             `)
+                            
+                    
 
                 });
-
+                $.ajax({
+                    type: 'GET',
+                    contentType: 'application/json',
+                    dataType: 'json',
+                    url: 'http://127.0.0.1:8000/userattempts',
+                    headers: { "Authorization": `Bearer ${localStorage.getItem('accessToken')}` },
+                    success: function (data) {
+                        console.log(data)
+                        
+                
+                        $.each(data, function (key, value) {
+                            console.log(key, value)
+                            attempted_questions = value.Completed_Ans
+                                
+                        })
+                        attempted_questions.forEach(function(e){
+                            if (e==questionid){
+                                $('#question_title').parent().prepend(`<b class="text-danger"><p style="margin-right:20px">ATTEMPTED</p></b>`)
+                            }
+                        })
+                    }
+                })
                 if (rr != null) {
                     $(`#${data.results[0].question_id}`).prop('checked', true);
                 }
+
+                
                 if (data.next) {
                     $('#next').show();
                     $('#previous').hide();
@@ -134,157 +164,181 @@
                     $('#submit').hide();
                 }
 
-            }
+            },
+            error:function (rs, e) {
+                console.error(rs.status);
+                if (rs.status == 401) {
+                  let flag = true;
+                  let formData = new FormData();
+                  formData.append('refresh', window.localStorage.getItem('refreshToken'));
+                  
+                  $.ajax({
+                      url: 'http://127.0.0.1:8000/accounts/api/token/refresh/',
+                      type: "POST",
+                      data: formData,
+                      async: false,
+                      cache: false,
+                      processData: false,
+                      contentType: false,
+                      success: function (data) {
+                          window.localStorage.setItem('accessToken', data['access']);
+                      },
+                      error: function (rs, e) {
+                          if (rs.status == 401) {
+                              flag = false;
+                              window.location.href = "/";
+                          } else {
+                              console.error(rs.responseText);
+                          }
+                      }
+                  });
+                }
+              }
+
         });
 
     }
         
     
-        $('.userdetail').css("display", "block")
-        $('#questions').remove();
-        $('button').click(function () {
-            console.log(`{{request.user}}`)
-            $('#startquiz').prop('disabled', true);
-            console.log(localStorage.getItem('accessToken'))
+    $('.userdetail').css("display", "block")
+    $('#questions').remove();
+    $('button').click(function () {
+        console.log(`{{request.user}}`)
+        $('#startquiz').prop('disabled', true);
+        console.log(localStorage.getItem('accessToken'))
+
+        $('.question').append('<ul id="questions" class="list-group"><li class="list-group-item "><div class="py-2 h5" id="main"><b>Q  </b><srong id="question_title"></srong></div><a id="previous" class="btn btn-success  mr-auto">previous</a><a id="next" href="" class="btn btn-success m-3">next</a><br></li></ul>');
+
+        $('#quizapp').remove()
+
+        a = $(this).attr('id')
+
+        
+        ajax_call('http://127.0.0.1:8000/questionschoices')
+
+        $('#next').click(function (e) {
+
+            e.preventDefault();
+            ajax_call($('#next').attr('href'))
+
+            //resultsArray.map((obj) => { console.log('obj', obj[0]) })
+            console.log('result', resultsArray)
+
+        });
+        $('#previous').click(function (e) {
+            e.preventDefault();
+            ajax_call($('#previous').attr('href'))
+
+        });
+
+        $(document).on('click', '#submit', function (e) {
+            e.preventDefault();
+            
+
+
 
             $.ajax({
                 type: 'GET',
                 contentType: 'application/json',
                 dataType: 'json',
-                url: 'http://127.0.0.1:8000/questionschoices',
+                url: 'http://127.0.0.1:8000/questions',
                 headers: { "Authorization": `Bearer ${localStorage.getItem('accessToken')}` },
                 success: function (data) {
-                    console.log('data: ', data);
+                    console.log('ans', data)
+                    $('.question').remove();
+                    $('.result').append('<div class="card"><h5 class="card-header text-center bold">Result</h5><div class="card-body score"><p class="text-center correct"></p><p class="text-center incorrect"></p></div></div><br>');
+                    var correct_ans = 0
+                    var incorrect_ans = 0
 
-                    $('.question').append('<ul id="questions" class="list-group"><li class="list-group-item "><div class="py-2 h5" id="main"><b>Q  </b><srong id="question_title"></srong></div><a id="previous" class="btn btn-success  mr-auto">previous</a><a id="next" href="" class="btn btn-success m-3">next</a><br></li></ul>');
-
-                    $('#quizapp').remove()
-
-                    a = $(this).attr('id')
-
-
-                    ajax_call('http://127.0.0.1:8000/questionschoices')
-
-                    $('#next').click(function (e) {
-
-                        e.preventDefault();
-                        ajax_call($('#next').attr('href'))
-
-                        //resultsArray.map((obj) => { console.log('obj', obj[0]) })
-                        console.log('result', resultsArray)
-
-                    });
-                    $('#previous').click(function (e) {
-                        e.preventDefault();
-                        ajax_call($('#previous').attr('href'))
-
-                    });
-
-                    $(document).on('click', '#submit', function (e) {
-                        e.preventDefault();
-
-
-
-
-                        $.ajax({
-                            type: 'GET',
-                            contentType: 'application/json',
-                            dataType: 'json',
-                            url: 'http://127.0.0.1:8000/questions',
-                            headers: { "Authorization": `Bearer ${localStorage.getItem('accessToken')}` },
-                            success: function (data) {
-                                console.log('ans', data)
-                                $('.question').remove();
-                                $('.result').append('<div class="card"><h5 class="card-header text-center bold">Result</h5><div class="card-body score"><p class="text-center correct"></p><p class="text-center incorrect"></p></div></div><br>');
-                                var correct_ans = 0
-                                var incorrect_ans = 0
-
-                                data.forEach(function (o) {
-                                    var re = resultsArray.filter(x => x[`${o.id}`])[0];
-                                    if (re != undefined) {
-                                        if (re[`${o.id}`] == o.correct_answers) {
-                                            correct_ans += 1
-                                        } else {
-                                            incorrect_ans += 1
-                                        }
-                                    }
-                                    console.log(o)
-
-                                })
-
-                                $('.correct').html(`<h3><b>Correct : ${correct_ans}</b></h3>`)
-                                $('.incorrect').html(`<h3><b>In Correct : ${incorrect_ans}</b></h3>`)
-                                $('.score').append(`<a id="attempts" class="attempts btn btn-success m-3">Your Attempts</a>`)
-                                $('.at').append(`<a id="" class="attempts btn btn-success m-3">Your Attempts</a>`)
-                                //resultsArray.forEach(function (o) {
-                                //   resultsArray.filter(x => x[value])[0]
-                                //})
-                                //console.log('result data', data)
-                                $.ajax({
-                                    type: 'POST',
-                                    contentType: 'application/json',
-                                    dataType: 'json',
-                                    url: 'http://127.0.0.1:8000/userattempts',
-                                    headers: { "Authorization": `Bearer ${localStorage.getItem('accessToken')}` },
-                                    data: JSON.stringify({
-                                        "user_id": localStorage.getItem('user_id'),
-                                        "Correct_Count": correct_ans,
-                                        "Incorrect_Count": incorrect_ans
-                                    }),
-
-                                    success: function (data,) {
-                                        console.log('success')
-                                    }
-                                })
+                    data.forEach(function (o) {
+                        var re = resultsArray.filter(x => x[`${o.id}`])[0];
+                        if (re != undefined) {
+                            if (re[`${o.id}`] == o.correct_answers) {
+                                correct_ans += 1
+                            } else {
+                                incorrect_ans += 1
                             }
-                        })
-
+                        }
+                        console.log(o)
 
                     })
 
-                    $(document).on('click', '.attempts', function (e) {
-                        $('#attempts').prop('disabled', true);
-                        e.preventDefault();
-
-                        $.ajax({
-                            type: 'GET',
-                            contentType: 'application/json',
-                            dataType: 'json',
-                            url: 'http://127.0.0.1:8000/userattempts',
-                            headers: { "Authorization": `Bearer ${localStorage.getItem('accessToken')}` },
-                            success: function (data) {
-                                console.log(data)
-                                $('.score').append(`<table class="table table-dark">
-                                <thead>
-                                  <tr>
-                                    <th scope="col">#</th>
-                                    <th scope="col">User name</th>
-                                    <th scope="col">Correct_Count</th>
-                                    <th scope="col">Incorrect_Count</th>
-                                  </tr>
-                                </thead><tbody class="allattempts">
-                                    
-                                  </tbody>
-                                </table>`)
-
-                                var attempts = 1
-                                $.each(data, function (key, value) {
-                                    console.log(key, value)
-
-                                    $('.allattempts').append(`<tr><th scope="row">${attempts}</th>
-                                    <td>${localStorage.getItem('username')}</td>
-                                    <td>${value.Correct_Count}</td>
-                                    <td>${value.Incorrect_Count}</td></tr>`)
-                                    attempts += 1
-
-                                })
-                            }
-                        })
+                    $('.correct').html(`<h3><b>Correct : ${correct_ans}</b></h3>`)
+                    $('.incorrect').html(`<h3><b>In Correct : ${incorrect_ans}</b></h3>`)
+                    $('.score').append(`<a id="attempts" class="attempts btn btn-success m-3">Your Attempts</a>`)
+                    $('.at').append(`<a id="" class="attempts btn btn-success m-3">Your Attempts</a>`)
+                    //resultsArray.forEach(function (o) {
+                    //   resultsArray.filter(x => x[value])[0]
+                    //})
+                    //console.log('result data', data)
+                    $.ajax({
+                        type: 'POST',
+                        contentType: 'application/json',
+                        dataType: 'json',
+                        url: 'http://127.0.0.1:8000/userattempts',
+                        headers: { "Authorization": `Bearer ${localStorage.getItem('accessToken')}` },
+                        data: JSON.stringify({
+                            
+                            "user_id": localStorage.getItem('user_id'),
+                            "Completed_Ans": questionid_list,
+                            "Correct_Count": correct_ans,
+                            "Incorrect_Count": incorrect_ans
+                        }),
+                        
+                        success: function (data,) {
+                            console.log('success')
+                           
+                        }
                     })
-
                 }
-            });
-        });
+            })
+
+
+        })
+
+        $(document).on('click', '.attempts', function (e) {
+            $('#attempts').prop('disabled', true);
+            e.preventDefault();
+
+            $.ajax({
+                type: 'GET',
+                contentType: 'application/json',
+                dataType: 'json',
+                url: 'http://127.0.0.1:8000/userattempts',
+                headers: { "Authorization": `Bearer ${localStorage.getItem('accessToken')}` },
+                success: function (data) {
+                    console.log(data)
+                    $('.score').append(`<table class="table table-dark">
+                    <thead>
+                        <tr>
+                        <th scope="col">#</th>
+                        <th scope="col">User name</th>
+                        <th scope="col">Correct_Count</th>
+                        <th scope="col">Incorrect_Count</th>
+                        </tr>
+                    </thead><tbody class="allattempts">
+                        
+                        </tbody>
+                    </table>`)
+
+                    var attempts = 1
+            
+                    $.each(data, function (key, value) {
+                        console.log(key, value)
+
+                        $('.allattempts').append(`<tr><th scope="row">${attempts}</th>
+                        <td>${localStorage.getItem('username')}</td>
+                        <td>${value.Correct_Count}</td>
+                        <td>${value.Incorrect_Count}</td></tr>`)
+                        attempts += 1
+                        attempted_questions = value.Completed_Ans
+                            
+                    })
+                }
+            })
+        })
+
+    });
     
 
 

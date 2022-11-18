@@ -46,9 +46,9 @@ class QuestionChoies(generics.ListAPIView):
 class UserAttemptsList(APIView):
     
     def get(self, request, format=None):
-        print(request.user.id)
+        # print(request.user.id)
         userattempts = UserAttempts.objects.filter(user=request.user.id)
-        print(userattempts)
+        # print(userattempts)
         serializer = UserAttemptsSerializer(userattempts, many=True)
         return Response(serializer.data)
   

@@ -36,16 +36,6 @@ class RegisterAPIView(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-class LogOutAPIView(APIView):
-    def post(self, request, format=None):
-        try:
-            refresh_token = request.data.get('refresh_token')
-            token_obj = RefreshToken(refresh_token)
-            token_obj.blacklist()
-            return Response(status=status.HTTP_200_OK)
-        except Exception :
-            return Response(status=status.HTTP_400_BAD_REQUEST)
-
 
 class UserDetail(viewsets.ModelViewSet):
     queryset = User.objects.all()

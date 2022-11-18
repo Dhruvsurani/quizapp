@@ -31,7 +31,7 @@
 
 {% block script %}
   <script>
-   
+    
     $(document).ready(function(){
       $('#login').submit(function(e){
         e.preventDefault();
@@ -58,15 +58,15 @@
               window.location.href = "/home";
 
           },
-          error: function (rs, e) {
-              console.error(rs.status);
-              console.error(rs.responseText);
-          }
+          
+            
         });
 
       })
 
       
     });
+    
+    
   </script>
 {% endblock %}

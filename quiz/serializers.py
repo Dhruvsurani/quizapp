@@ -25,10 +25,10 @@ class UserAttemptsSerializer(serializers.ModelSerializer):
   user_id = serializers.IntegerField()
   class Meta:
     model = UserAttempts
-    fields = ('id', 'user_id', 'Correct_Count', 'Incorrect_Count')
+    fields = ('id', 'user_id', 'Completed_Ans', 'Correct_Count', 'Incorrect_Count')
 
   def create(self, validated_data):
     user=User.objects.filter(id=validated_data['user_id']).first()
-    UserAttempts.objects.create(user=user,Correct_Count=validated_data['Correct_Count'],Incorrect_Count=validated_data['Incorrect_Count'])
+    UserAttempts.objects.create(user=user,Completed_Ans=validated_data['Completed_Ans'], Correct_Count=validated_data['Correct_Count'],Incorrect_Count=validated_data['Incorrect_Count'])
     return validated_data
 

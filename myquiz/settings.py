@@ -171,8 +171,8 @@ CORS_ALLOW_HEADERS = [
 CORS_ORIGIN_WHITELIST = (
     'http://127.0.0.1:5500',
 )
-DEFAULT = {
-    'ACCESS_TOKEN_LIFETIME': timedelta(seconds=10), 
-    'REFRESH_TOKEN_LIFETIME': timedelta(seconds=10)
+SIMPLE_JWT = {
+    'ACCESS_TOKEN_LIFETIME': timedelta(hours=1),
+    'REFRESH_TOKEN_LIFETIME': timedelta(days=1),
+    'ROTATE_REFRESH_TOKENS': True,
 }
-
