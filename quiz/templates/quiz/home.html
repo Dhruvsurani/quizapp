@@ -74,7 +74,7 @@
         }
         console.log('ansarray', ansArray)
     }
-
+    
     function ajax_call(url) {
 
         $.ajax({
@@ -193,6 +193,7 @@
                             url: 'http://127.0.0.1:8000/questions',
                             headers: { "Authorization": `Bearer ${localStorage.getItem('accessToken')}` },
                             success: function (data) {
+                                console.log('ans', data)
                                 $('.question').remove();
                                 $('.result').append('<div class="card"><h5 class="card-header text-center bold">Result</h5><div class="card-body score"><p class="text-center correct"></p><p class="text-center incorrect"></p></div></div><br>');
                                 var correct_ans = 0
