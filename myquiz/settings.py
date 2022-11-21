@@ -86,7 +86,7 @@ WSGI_APPLICATION = 'myquiz.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'quizapp',
+        'NAME': 'quizapp2',
         'USER': 'postgres',
         'PASSWORD': 'postgres',
         'HOST': 'localhost',

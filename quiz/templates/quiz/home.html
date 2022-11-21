@@ -31,9 +31,31 @@
 
 {% block script %}
 <script>
-    questionid = ''
     attempted_questions = []
-    questionid_list = []
+    $.ajax({
+                    type: 'GET',
+                    contentType: 'application/json',
+                    dataType: 'json',
+                    url: 'http://127.0.0.1:8000/userattempts',
+                    headers: { "Authorization": `Bearer ${localStorage.getItem('accessToken')}` },
+                    success: function (data) {
+                        console.log(data)
+                        
+                
+                        $.each(data, function (key, value) {
+                            debugger;
+                            attempted_questions = value;
+                            console.log('attempted', key, value)
+                            // attempted_questions = value.Completed_Ans
+                                
+                        })
+                        // attempted_questions.forEach(function(e){
+                        //     if (e==questionid){
+                        //         $('#question_title').parent().prepend(`<b class="text-danger"><p style="margin-right:20px">ATTEMPTED</p></b>`)
+                        //     }
+                        // })
+                    }
+                });
     resultsArray = [];
     function setAnsValue(value, id) {
         var idname = `${id}`;
@@ -42,7 +64,6 @@
         if (resultsArray.length == 0) {
             obj[idname] = value;
             resultsArray.push(obj);
-            questionid_list.push([id])
         } else {
             var nn = resultsArray.filter(x => x[idname])[0];
             if (nn != undefined && nn != null) {
@@ -51,7 +72,6 @@
             else {
                 obj[idname] = value
                 resultsArray.push(obj);
-                questionid_list.push([id])
             }
         }
         console.log('result', resultsArray)
@@ -104,6 +124,15 @@
                             attrc = 'checked';
                         }
                     }
+                    if(attempted_questions != null){
+                        if(attempted_questions.Completed_Ans.length > 0){
+                            var ttt = attempted_questions.Completed_Ans.filter(x => x[data.results[0].question_id])[0][data.results[0].question_id];
+                           if(ttt == value){
+                            attrc = 'checked';
+                            $('#question_title').parent().prepend(`<b class="text-danger"><p style="margin-right:20px">ATTEMPTED</p></b>`)
+                           }
+                        }
+                    }
                     questionid = data.results[0].question_id
                     $('#main').append(`<br>
                                 <input id="${value}${data.results[0].question_id}" class="${data.results[0].question_id}" onclick="setAnsValue('${value}',${data.results[0].question_id})" type="radio" name="${data.results[0].question}" ${attrc}>
@@ -114,28 +143,7 @@
                     
 
                 });
-                $.ajax({
-                    type: 'GET',
-                    contentType: 'application/json',
-                    dataType: 'json',
-                    url: 'http://127.0.0.1:8000/userattempts',
-                    headers: { "Authorization": `Bearer ${localStorage.getItem('accessToken')}` },
-                    success: function (data) {
-                        console.log(data)
-                        
                 
-                        $.each(data, function (key, value) {
-                            console.log(key, value)
-                            attempted_questions = value.Completed_Ans
-                                
-                        })
-                        attempted_questions.forEach(function(e){
-                            if (e==questionid){
-                                $('#question_title').parent().prepend(`<b class="text-danger"><p style="margin-right:20px">ATTEMPTED</p></b>`)
-                            }
-                        })
-                    }
-                })
                 if (rr != null) {
                     $(`#${data.results[0].question_id}`).prop('checked', true);
                 }
@@ -280,7 +288,7 @@
                         data: JSON.stringify({
                             
                             "user_id": localStorage.getItem('user_id'),
-                            "Completed_Ans": questionid_list,
+                            "Completed_Ans": resultsArray,
                             "Correct_Count": correct_ans,
                             "Incorrect_Count": incorrect_ans
                         }),
@@ -331,7 +339,6 @@
                         <td>${value.Correct_Count}</td>
                         <td>${value.Incorrect_Count}</td></tr>`)
                         attempts += 1
-                        attempted_questions = value.Completed_Ans
                             
                     })
                 }

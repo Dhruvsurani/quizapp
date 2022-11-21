@@ -1,7 +1,7 @@
 from django.contrib.postgres.fields import ArrayField
 from django.db import models
 from django.contrib.auth import get_user_model
-
+from django.db.models.fields.json import JSONField
 User = get_user_model()
 
 
@@ -25,9 +25,7 @@ class QuestionChoice(models.Model):
 
 class UserAttempts(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
-    Completed_Ans = ArrayField(ArrayField(models.IntegerField(blank=True))
-        
-    )
+    Completed_Ans = JSONField()
     Correct_Count = models.IntegerField()
     Incorrect_Count = models.IntegerField()
     
